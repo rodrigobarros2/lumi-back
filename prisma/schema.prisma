@@ -10,27 +10,27 @@ datasource db {
 model Invoice {
   id String @id @default(cuid())
 
-  installationNumber Int
-  distributor        String
-  consumer           String
-
-  clientNumber Int
+  consumer     String
+  distributor  String
   invoiceMonth String
 
-  energyValue    Float
-  energyQuantity Float
+  installationNumber BigInt
+  clientNumber       BigInt
 
-  sceeeValue    Float
-  sceeeQuantity Float
+  energyValue    Decimal
+  energyQuantity Decimal
 
-  compensatedValue    Float
-  compensatedQuantity Float
+  sceeeValue    Decimal
+  sceeeQuantity Decimal
 
-  publicLighting Float
+  compensatedValue    Decimal
+  compensatedQuantity Decimal
+
+  publicLighting Decimal
 
   invoiceUrl  String?
   invoiceName String?
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime?
+  updatedAt DateTime? @updatedAt
 }

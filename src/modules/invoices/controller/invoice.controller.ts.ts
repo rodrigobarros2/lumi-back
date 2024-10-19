@@ -5,6 +5,7 @@ import { GetAllInvoicesService } from "../services/getall-invoice.service";
 import { CreateInvoicesService } from "../services/create-invoice.service";
 import { GetOneInvoicesService } from "../services/getone-invoice.service";
 import { GetPdfService } from "../services/getPdf-invoice.service";
+import { GetOneClientDataService } from "../services/getone-client-data.service";
 
 class InvoicesController {
   static async create(request: Request, response: Response) {
@@ -38,6 +39,18 @@ class InvoicesController {
     const invoiceService = new GetOneInvoicesService(new InvoicesDBRepository());
 
     const result = await invoiceService.perform(request.params.id);
+
+    response.status(HttpCode.OK).json({
+      response: "successfull",
+      message: "Dados obtidos com sucesso",
+      data: result ?? {},
+    });
+  }
+
+  static async getByClientNumber(request: Request, response: Response) {
+    const invoiceService = new GetOneClientDataService(new InvoicesDBRepository());
+
+    const result = await invoiceService.perform(Number(request.params.id));
 
     response.status(HttpCode.OK).json({
       response: "successfull",

@@ -11,4 +11,5 @@ router.route("/").post(upload.single("pdfFile"), validate(CreateInvoicesSchema),
 router.route("/").get(InvoicesController.getAll);
 router.route("/:id").get(InvoicesController.getById);
 router.route("/:id/pdf").get(InvoicesController.getPdf);
+router.route("/:id/client").get(InvoicesController.getByClientNumber);
 export default router;
