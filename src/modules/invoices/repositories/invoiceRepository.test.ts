@@ -135,19 +135,8 @@ describe("InvoicesDBRepository", () => {
       (mockPrisma.invoice.findUnique as jest.Mock).mockResolvedValue(mockInvoice);
 
       const result = await repository.getById("1");
+      expect(result).toEqual(mockInvoice);
 
-      expect(result).toEqual({
-        ...mockInvoice,
-        installationNumber: Number(mockInvoice.installationNumber),
-        clientNumber: Number(mockInvoice.clientNumber),
-        energyValue: Number(mockInvoice.energyValue),
-        energyQuantity: Number(mockInvoice.energyQuantity),
-        sceeeValue: Number(mockInvoice.sceeeValue),
-        sceeeQuantity: Number(mockInvoice.sceeeQuantity),
-        compensatedValue: Number(mockInvoice.compensatedValue),
-        compensatedQuantity: Number(mockInvoice.compensatedQuantity),
-        publicLighting: Number(mockInvoice.publicLighting),
-      });
       expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
         where: { id: "1" },
       });
@@ -161,6 +150,57 @@ describe("InvoicesDBRepository", () => {
       expect(result).toBeNull();
       expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
         where: { id: "1" },
+      });
+    });
+
+    describe("getAll", () => {
+      it("deve retornar todas as faturas", async () => {
+        const mockInvoices: InvoiceProps[] = [
+          {
+            id: "1",
+            clientNumber: 123,
+            energyValue: 100,
+            consumer: "Consumer 1",
+            distributor: "Distributor 1",
+            invoiceMonth: new Date().toISOString(),
+            installationNumber: 123456,
+            energyQuantity: 50,
+            sceeeQuantity: 10,
+            sceeeValue: 5,
+            compensatedQuantity: 20,
+            compensatedValue: 10,
+            publicLighting: 2,
+            invoiceUrl: null,
+            invoiceName: null,
+            createdAt: new Date(),
+            updatedAt: null,
+          },
+          {
+            id: "2",
+            clientNumber: 456,
+            energyValue: 200,
+            consumer: "Consumer 2",
+            distributor: "Distributor 2",
+            invoiceMonth: new Date().toISOString(),
+            installationNumber: 654321,
+            energyQuantity: 100,
+            sceeeQuantity: 20,
+            sceeeValue: 10,
+            compensatedQuantity: 40,
+            compensatedValue: 20,
+            publicLighting: 4,
+            invoiceUrl: null,
+            invoiceName: null,
+            createdAt: new Date(),
+            updatedAt: null,
+          },
+        ];
+        (mockPrisma.invoice.findMany as jest.Mock).mockResolvedValue(mockInvoices);
+
+        const result = await repository.getAll();
+
+        expect(result).toEqual(mockInvoices);
+        expect(mockPrisma.invoice.findMany).toHaveBeenCalled();
       });
     });
   });
