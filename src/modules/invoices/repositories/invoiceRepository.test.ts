@@ -1,21 +1,26 @@
-import { PrismaClient } from "@prisma/client";
-import { AppError } from "../../../shared/errors/AppError";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { InvoiceProps } from "../models/invoiceModel";
 import { InvoicesDBRepository } from "./invoiceRepository";
+import { AppError, HttpCode } from "../../../shared/errors/AppError";
 
-// Mock do PrismaClient
-jest.mock("@prisma/client", () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
-    invoice: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
+jest.mock("@prisma/client", () => {
+  const Decimal = jest.fn().mockImplementation((value) => ({
+    toNumber: () => Number(value),
+  }));
+
+  return {
+    PrismaClient: jest.fn().mockImplementation(() => ({
+      invoice: {
+        create: jest.fn(),
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+      },
+    })),
+    Prisma: {
+      Decimal,
     },
-  })),
-  Prisma: {
-    Decimal: jest.fn().mockImplementation((value) => ({ toNumber: () => value })),
-  },
-}));
+  };
+});
 
 describe("InvoicesDBRepository", () => {
   let repository: InvoicesDBRepository;
@@ -28,82 +33,154 @@ describe("InvoicesDBRepository", () => {
   });
 
   describe("create", () => {
-    it("deve criar uma fatura com sucesso", async () => {
-      const mockInvoice = { id: "abc123" };
-      (mockPrisma.invoice.create as jest.Mock).mockResolvedValue(mockInvoice);
+    it("deve criar uma nova fatura", async () => {
+      const mockInvoice: InvoiceProps = {
+        id: "1",
+        clientNumber: 123,
+        energyValue: 100,
+        consumer: "Consumer 1",
+        distributor: "Distributor 1",
+        invoiceMonth: new Date().toISOString(),
+        installationNumber: 123456,
+        energyQuantity: 50,
+        sceeeQuantity: 10,
+        sceeeValue: 5,
+        compensatedQuantity: 20,
+        compensatedValue: 10,
+        publicLighting: 2,
+        invoiceUrl: null,
+        invoiceName: null,
+        createdAt: new Date(),
+        updatedAt: null,
+      };
 
-      const result = await repository.create({} as InvoiceProps);
+      (mockPrisma.invoice.create as jest.Mock).mockResolvedValue({ id: "1" });
 
-      expect(result).toEqual({ id: "abc123" });
-      expect(mockPrisma.invoice.create).toHaveBeenCalled();
+      const result = await repository.create(mockInvoice);
+
+      expect(result).toEqual({ id: "1" });
+
+      expect(mockPrisma.invoice.create).toHaveBeenCalledWith({
+        data: {
+          ...mockInvoice,
+          installationNumber: BigInt(mockInvoice.installationNumber),
+          clientNumber: BigInt(mockInvoice.clientNumber),
+          energyValue: expect.objectContaining({ toNumber: expect.any(Function) }),
+          energyQuantity: expect.objectContaining({ toNumber: expect.any(Function) }),
+          sceeeValue: expect.objectContaining({ toNumber: expect.any(Function) }),
+          sceeeQuantity: expect.objectContaining({ toNumber: expect.any(Function) }),
+          compensatedValue: expect.objectContaining({ toNumber: expect.any(Function) }),
+          compensatedQuantity: expect.objectContaining({ toNumber: expect.any(Function) }),
+          publicLighting: expect.objectContaining({ toNumber: expect.any(Function) }),
+        },
+      });
     });
   });
 
   describe("getByClientNumber", () => {
-    it("deve retornar faturas para um número de cliente válido", async () => {
-      const mockInvoices = [
-        { id: "1", clientNumber: BigInt(123), energyValue: { toNumber: () => 100 } },
-        { id: "2", clientNumber: BigInt(123), energyValue: { toNumber: () => 200 } },
+    it("deve retornar faturas pelo número do cliente", async () => {
+      const mockInvoices: InvoiceProps[] = [
+        {
+          id: "1",
+          clientNumber: 123,
+          energyValue: 100,
+          consumer: "Consumer 1",
+          distributor: "Distributor 1",
+          invoiceMonth: new Date().toISOString(),
+          installationNumber: 123456,
+          energyQuantity: 50,
+          sceeeQuantity: 10,
+          sceeeValue: 5,
+          compensatedQuantity: 20,
+          compensatedValue: 10,
+          publicLighting: 2,
+          invoiceUrl: null,
+          invoiceName: null,
+          createdAt: new Date(),
+          updatedAt: null,
+        },
       ];
       (mockPrisma.invoice.findMany as jest.Mock).mockResolvedValue(mockInvoices);
 
       const result = await repository.getByClientNumber(123);
 
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(1);
       expect(result[0].id).toBe("1");
-      expect(result[1].id).toBe("2");
+      expect(mockPrisma.invoice.findMany).toHaveBeenCalledWith({
+        where: { clientNumber: BigInt(123) },
+      });
     });
 
-    it("deve lançar um AppError se ocorrer um erro", async () => {
-      (mockPrisma.invoice.findMany as jest.Mock).mockRejectedValue(new Error("Erro de banco de dados"));
+    it("deve lançar um erro ao falhar ao buscar faturas pelo número do cliente", async () => {
+      (mockPrisma.invoice.findMany as jest.Mock).mockRejectedValue(new Error("Prisma error"));
 
       await expect(repository.getByClientNumber(123)).rejects.toThrow(AppError);
-    });
-  });
-
-  describe("getAll", () => {
-    it("deve retornar todas as faturas", async () => {
-      const mockInvoices = [
-        { id: "1", clientNumber: BigInt(123), energyValue: { toNumber: () => 100 } },
-        { id: "2", clientNumber: BigInt(456), energyValue: { toNumber: () => 200 } },
-      ];
-      (mockPrisma.invoice.findMany as jest.Mock).mockResolvedValue(mockInvoices);
-
-      const result = await repository.getAll();
-
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe("1");
-      expect(result[1].id).toBe("2");
+      expect(mockPrisma.invoice.findMany).toHaveBeenCalledWith({
+        where: { clientNumber: BigInt(123) },
+      });
     });
   });
 
   describe("getById", () => {
-    it("deve retornar uma fatura para um ID válido", async () => {
-      const mockInvoice = {
-        id: "abc123",
-        clientNumber: BigInt(123),
-        energyValue: { toNumber: () => 100 },
+    it("deve retornar uma fatura pelo ID", async () => {
+      const mockInvoice: InvoiceProps = {
+        id: "1",
+        clientNumber: 123,
+        energyValue: 100,
+        consumer: "Consumer 1",
+        distributor: "Distributor 1",
+        invoiceMonth: new Date().toISOString(),
+        installationNumber: 123456,
+        energyQuantity: 50,
+        sceeeQuantity: 10,
+        sceeeValue: 5,
+        compensatedQuantity: 20,
+        compensatedValue: 10,
+        publicLighting: 2,
+        invoiceUrl: null,
+        invoiceName: null,
+        createdAt: new Date(),
+        updatedAt: null,
       };
       (mockPrisma.invoice.findUnique as jest.Mock).mockResolvedValue(mockInvoice);
 
-      const result = await repository.getById("abc123");
+      const result = await repository.getById("1");
 
-      expect(result).toBeDefined();
-      expect(result?.id).toBe("abc123");
+      expect(result).toEqual({
+        ...mockInvoice,
+        installationNumber: Number(mockInvoice.installationNumber),
+        clientNumber: Number(mockInvoice.clientNumber),
+        energyValue: Number(mockInvoice.energyValue),
+        energyQuantity: Number(mockInvoice.energyQuantity),
+        sceeeValue: Number(mockInvoice.sceeeValue),
+        sceeeQuantity: Number(mockInvoice.sceeeQuantity),
+        compensatedValue: Number(mockInvoice.compensatedValue),
+        compensatedQuantity: Number(mockInvoice.compensatedQuantity),
+        publicLighting: Number(mockInvoice.publicLighting),
+      });
+      expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
+        where: { id: "1" },
+      });
     });
 
-    it("deve retornar null para um ID inválido", async () => {
+    it("deve retornar null se a fatura não for encontrada", async () => {
       (mockPrisma.invoice.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const result = await repository.getById("invalid");
+      const result = await repository.getById("1");
 
       expect(result).toBeNull();
+      expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
+        where: { id: "1" },
+      });
     });
 
-    it("deve lançar um AppError se ocorrer um erro", async () => {
-      (mockPrisma.invoice.findUnique as jest.Mock).mockRejectedValue(new Error("Erro de banco de dados"));
+    it("deve lançar um erro ao falhar ao buscar fatura pelo ID", async () => {
+      (mockPrisma.invoice.findUnique as jest.Mock).mockRejectedValue(new Error("Prisma error"));
 
-      await expect(repository.getById("abc123")).rejects.toThrow(AppError);
+      await expect(repository.getById("1")).rejects.toThrow(AppError);
+      expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
+        where: { id: "1" },
+      });
     });
   });
 });

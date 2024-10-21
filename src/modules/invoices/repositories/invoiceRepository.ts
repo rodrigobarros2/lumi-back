@@ -34,13 +34,13 @@ export class InvoicesDBRepository implements InvoicesRepository {
         ...invoice,
         installationNumber: Number(invoice.installationNumber),
         clientNumber: Number(invoice.clientNumber),
-        energyValue: invoice.energyValue.toNumber(),
-        energyQuantity: invoice.energyQuantity.toNumber(),
-        sceeeValue: invoice.sceeeValue.toNumber(),
-        sceeeQuantity: invoice.sceeeQuantity.toNumber(),
-        compensatedValue: invoice.compensatedValue.toNumber(),
-        compensatedQuantity: invoice.compensatedQuantity.toNumber(),
-        publicLighting: invoice.publicLighting.toNumber(),
+        energyValue: Number(invoice.energyValue),
+        energyQuantity: Number(invoice.energyQuantity),
+        sceeeValue: Number(invoice.sceeeValue),
+        sceeeQuantity: Number(invoice.sceeeQuantity),
+        compensatedValue: Number(invoice.compensatedValue),
+        compensatedQuantity: Number(invoice.compensatedQuantity),
+        publicLighting: Number(invoice.publicLighting),
       }));
 
       return convertedInvoices;
@@ -59,13 +59,13 @@ export class InvoicesDBRepository implements InvoicesRepository {
       ...invoice,
       installationNumber: Number(invoice.installationNumber),
       clientNumber: Number(invoice.clientNumber),
-      energyValue: invoice.energyValue.toNumber(),
-      energyQuantity: invoice.energyQuantity.toNumber(),
-      sceeeValue: invoice.sceeeValue.toNumber(),
-      sceeeQuantity: invoice.sceeeQuantity.toNumber(),
-      compensatedValue: invoice.compensatedValue.toNumber(),
-      compensatedQuantity: invoice.compensatedQuantity.toNumber(),
-      publicLighting: invoice.publicLighting.toNumber(),
+      energyValue: Number(invoice.energyValue),
+      energyQuantity: Number(invoice.energyQuantity),
+      sceeeValue: Number(invoice.sceeeValue),
+      sceeeQuantity: Number(invoice.sceeeQuantity),
+      compensatedValue: Number(invoice.compensatedValue),
+      compensatedQuantity: Number(invoice.compensatedQuantity),
+      publicLighting: Number(invoice.publicLighting),
     }));
   }
 
@@ -83,13 +83,13 @@ export class InvoicesDBRepository implements InvoicesRepository {
         ...invoice,
         installationNumber: Number(invoice.installationNumber),
         clientNumber: Number(invoice.clientNumber),
-        energyValue: invoice.energyValue.toNumber(),
-        energyQuantity: invoice.energyQuantity.toNumber(),
-        sceeeValue: invoice.sceeeValue.toNumber(),
-        sceeeQuantity: invoice.sceeeQuantity.toNumber(),
-        compensatedValue: invoice.compensatedValue.toNumber(),
-        compensatedQuantity: invoice.compensatedQuantity.toNumber(),
-        publicLighting: invoice.publicLighting.toNumber(),
+        energyValue: Number(invoice.energyValue),
+        energyQuantity: Number(invoice.energyQuantity),
+        sceeeValue: Number(invoice.sceeeValue),
+        sceeeQuantity: Number(invoice.sceeeQuantity),
+        compensatedValue: Number(invoice.compensatedValue),
+        compensatedQuantity: Number(invoice.compensatedQuantity),
+        publicLighting: Number(invoice.publicLighting),
       };
 
       return convertedInvoice;
