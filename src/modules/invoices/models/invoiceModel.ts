@@ -1,5 +1,6 @@
 export interface InvoicesRepository {
   create(fatura: InvoiceProps): Promise<{ id: string }>;
+  update(id: string, fatura: InvoiceProps): Promise<{ id: string }>;
   getByClientNumber(id: number): Promise<InvoiceProps[] | null>;
   getById(id: string): Promise<InvoiceProps | null>;
   getAll(): Promise<InvoiceProps[]>;

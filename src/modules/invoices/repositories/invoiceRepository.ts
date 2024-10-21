@@ -72,6 +72,25 @@ export class InvoicesDBRepository implements InvoicesRepository {
     }));
   }
 
+  async update(id: string, fatura: InvoiceProps): Promise<{ id: string }> {
+    const updatedInvoice = await this.prisma.invoice.update({
+      where: { id },
+      data: {
+        ...fatura,
+        installationNumber: BigInt(fatura.installationNumber),
+        clientNumber: BigInt(fatura.clientNumber),
+        energyValue: new Prisma.Decimal(fatura.energyValue),
+        energyQuantity: new Prisma.Decimal(fatura.energyQuantity),
+        sceeeValue: new Prisma.Decimal(fatura.sceeeValue),
+        sceeeQuantity: new Prisma.Decimal(fatura.sceeeQuantity),
+        compensatedValue: new Prisma.Decimal(fatura.compensatedValue),
+        compensatedQuantity: new Prisma.Decimal(fatura.compensatedQuantity),
+        publicLighting: new Prisma.Decimal(fatura.publicLighting),
+      },
+    });
+    return { id: updatedInvoice.id };
+  }
+
   async getById(id: string): Promise<InvoiceProps | null> {
     try {
       const invoice = await this.prisma.invoice.findUnique({
