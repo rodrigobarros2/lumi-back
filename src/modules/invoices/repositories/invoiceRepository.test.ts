@@ -1,7 +1,7 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import { InvoiceProps } from "../models/invoiceModel";
 import { InvoicesDBRepository } from "./invoiceRepository";
-import { AppError, HttpCode } from "../../../shared/errors/AppError";
+import { AppError } from "../../../shared/errors/AppError";
 
 jest.mock("@prisma/client", () => {
   const Decimal = jest.fn().mockImplementation((value) => ({
