@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { AppError, HttpCode } from "../../../shared/errors/AppError";
 import { InvoiceProps, InvoicesRepository } from "../models/invoiceModel";
 import prisma from "../../../database/prismaClient";
@@ -7,6 +7,9 @@ export class InvoicesDBRepository implements InvoicesRepository {
   private prisma = prisma;
 
   async create(fatura: InvoiceProps): Promise<{ id: string }> {
+    //Optei por utilizar valores decimais no banco porque se trata de valores monetários
+    //Garantindo a total integridade do banco relacionado a valores financeiros (linha de raciocício)
+    //Talvez não precisaria dessa complexidade, mas é uma boa prática
     const invoice = await this.prisma.invoice.create({
       data: {
         ...fatura,
