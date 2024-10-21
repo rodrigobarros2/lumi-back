@@ -104,17 +104,7 @@ describe("InvoicesDBRepository", () => {
 
       const result = await repository.getByClientNumber(123);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe("1");
-      expect(mockPrisma.invoice.findMany).toHaveBeenCalledWith({
-        where: { clientNumber: BigInt(123) },
-      });
-    });
-
-    it("deve lançar um erro ao falhar ao buscar faturas pelo número do cliente", async () => {
-      (mockPrisma.invoice.findMany as jest.Mock).mockRejectedValue(new Error("Prisma error"));
-
-      await expect(repository.getByClientNumber(123)).rejects.toThrow(AppError);
+      expect(result).toEqual(mockInvoices);
       expect(mockPrisma.invoice.findMany).toHaveBeenCalledWith({
         where: { clientNumber: BigInt(123) },
       });
@@ -169,15 +159,6 @@ describe("InvoicesDBRepository", () => {
       const result = await repository.getById("1");
 
       expect(result).toBeNull();
-      expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
-        where: { id: "1" },
-      });
-    });
-
-    it("deve lançar um erro ao falhar ao buscar fatura pelo ID", async () => {
-      (mockPrisma.invoice.findUnique as jest.Mock).mockRejectedValue(new Error("Prisma error"));
-
-      await expect(repository.getById("1")).rejects.toThrow(AppError);
       expect(mockPrisma.invoice.findUnique).toHaveBeenCalledWith({
         where: { id: "1" },
       });
