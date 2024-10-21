@@ -18,7 +18,7 @@ class InvoicesController {
 
     response.status(HttpCode.OK).json({
       response: "successfull",
-      message: "Dados obtidos com sucesso",
+      message: result.statusCode === 201 ? "Fatura cadastrada com sucesso" : "Fatura atualizada com sucesso",
       data: result ?? {},
     });
   }

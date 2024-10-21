@@ -4,8 +4,9 @@ import { InvoiceProps, InvoicesRepository } from "../models/invoiceModel";
 export class CreateInvoicesService {
   constructor(private readonly invoiceRepository: InvoicesRepository) {}
 
-  public async perform(invoice: InvoiceProps, file?: Express.Multer.File): Promise<{ id: string }> {
+  public async perform(invoice: InvoiceProps, file?: Express.Multer.File): Promise<{ id: string; statusCode: number }> {
     try {
+      console.log("🚀 ~ CreateInvoicesService ~ perform ~ invoice:", invoice);
       const existingInvoices = await this.invoiceRepository.getByClientNumber(invoice.clientNumber);
       const existingInvoice = existingInvoices?.find(
         (existingInvoice) => existingInvoice.invoiceMonth === invoice.invoiceMonth
@@ -17,7 +18,6 @@ export class CreateInvoicesService {
         invoiceName: file?.originalname ?? null,
       };
 
-      // se uma fatura pra esse mês já existir, atualiza ela
       if (existingInvoice) {
         if (existingInvoice.id) {
           await this.invoiceRepository.update(existingInvoice.id, newInvoice);
@@ -27,10 +27,11 @@ export class CreateInvoicesService {
             description: "ID da fatura existente não encontrado.",
           });
         }
-        return { id: existingInvoice.id };
+        return { id: existingInvoice.id, statusCode: 200 };
       }
 
-      return await this.invoiceRepository.create(newInvoice);
+      const createdInvoice = await this.invoiceRepository.create(newInvoice);
+      return { id: createdInvoice.id, statusCode: 201 };
     } catch (error) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
