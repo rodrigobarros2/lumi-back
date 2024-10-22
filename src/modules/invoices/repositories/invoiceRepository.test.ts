@@ -1,18 +1,19 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import { InvoiceProps } from "../models/invoiceModel";
 import { InvoicesDBRepository } from "./invoiceRepository";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
-jest.mock("@prisma/client", () => {
-  const Decimal = jest.fn().mockImplementation((value) => ({
+vi.mock("@prisma/client", () => {
+  const Decimal = vi.fn().mockImplementation((value) => ({
     toNumber: () => Number(value),
   }));
 
   return {
-    PrismaClient: jest.fn().mockImplementation(() => ({
+    PrismaClient: vi.fn().mockImplementation(() => ({
       invoice: {
-        create: jest.fn(),
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
+        create: vi.fn(),
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
       },
     })),
     Prisma: {
@@ -23,10 +24,10 @@ jest.mock("@prisma/client", () => {
 
 describe("InvoicesDBRepository", () => {
   let repository: InvoicesDBRepository;
-  let mockPrisma: jest.Mocked<PrismaClient>;
+  let mockPrisma: any;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     repository = new InvoicesDBRepository();
     mockPrisma = (repository as any).prisma;
   });
@@ -53,7 +54,7 @@ describe("InvoicesDBRepository", () => {
         updatedAt: null,
       };
 
-      (mockPrisma.invoice.create as jest.Mock).mockResolvedValue({ id: "1" });
+      mockPrisma.invoice.create.mockResolvedValue({ id: "1" });
 
       const result = await repository.create(mockInvoice);
 
@@ -99,7 +100,7 @@ describe("InvoicesDBRepository", () => {
           updatedAt: null,
         },
       ];
-      (mockPrisma.invoice.findMany as jest.Mock).mockResolvedValue(mockInvoices);
+      mockPrisma.invoice.findMany.mockResolvedValue(mockInvoices);
 
       const result = await repository.getByClientNumber(123);
 
@@ -131,7 +132,7 @@ describe("InvoicesDBRepository", () => {
         createdAt: new Date(),
         updatedAt: null,
       };
-      (mockPrisma.invoice.findUnique as jest.Mock).mockResolvedValue(mockInvoice);
+      mockPrisma.invoice.findUnique.mockResolvedValue(mockInvoice);
 
       const result = await repository.getById("1");
       expect(result).toEqual(mockInvoice);
@@ -142,7 +143,7 @@ describe("InvoicesDBRepository", () => {
     });
 
     it("deve retornar null se a fatura não for encontrada", async () => {
-      (mockPrisma.invoice.findUnique as jest.Mock).mockResolvedValue(null);
+      mockPrisma.invoice.findUnique.mockResolvedValue(null);
 
       const result = await repository.getById("1");
 
@@ -194,7 +195,7 @@ describe("InvoicesDBRepository", () => {
             updatedAt: null,
           },
         ];
-        (mockPrisma.invoice.findMany as jest.Mock).mockResolvedValue(mockInvoices);
+        mockPrisma.invoice.findMany.mockResolvedValue(mockInvoices);
 
         const result = await repository.getAll();
 
