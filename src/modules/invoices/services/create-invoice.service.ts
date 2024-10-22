@@ -6,7 +6,6 @@ export class CreateInvoicesService {
 
   public async perform(invoice: InvoiceProps, file?: Express.Multer.File): Promise<{ id: string; statusCode: number }> {
     try {
-      console.log("🚀 ~ CreateInvoicesService ~ perform ~ invoice:", invoice);
       const existingInvoices = await this.invoiceRepository.getByClientNumber(invoice.clientNumber);
       const existingInvoice = existingInvoices?.find(
         (existingInvoice) => existingInvoice.invoiceMonth === invoice.invoiceMonth
