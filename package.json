@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch --env-file .env src/main/server.ts",
     "build": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "start": "node dist/main/server.js"
   },
   "keywords": [],
   "author": "",
