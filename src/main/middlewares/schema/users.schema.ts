@@ -68,6 +68,6 @@ export const CreateInvoicesSchema = z.object({
         message: "publicLighting expected number, received NaN",
       })
     ),
-    pdfFile: z.instanceof(File).optional(),
+    pdfFile: z.instanceof(Buffer).optional(),
   }),
 });
