@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import routes from "./routes";
 import pinoHttp from "pino-http";
-import { logger } from "../../shared/errors/logger";
+import "dotenv/config";
 
 export const setupApp = () => {
   const app: Application = express();
@@ -15,7 +15,6 @@ export const setupApp = () => {
 
   app.use(helmet());
 
-  app.use(pinoHttp({ logger }));
 
   app.use("/api", routes);
 
@@ -37,4 +36,3 @@ export const setupApp = () => {
 
   return app;
 };
-
